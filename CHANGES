@@ -1,6 +1,20 @@
-19 Dec 2003
+Changelog
+=========
+
+0.01_03 23 Dec 2003
+  - Fix silly typo
+  - Fix lunar_phase*() functions so that successive calls to next()
+    and previous() work as expected.
+  - Standardize interface.
+  - Change semantics of *_before() and *_after() functions so that
+    they always return the "next" applicable date. Pointed out by
+    Flavio S. Glock. 
+  - Add lunar phases related constants.
+  - Add some more tests
+
+0.01_02 19 Dec 2003
   - Add some sanity tests
   - Fix indentation
 
-09 Dec 2003
+0.01_01 09 Dec 2003
   - First Release

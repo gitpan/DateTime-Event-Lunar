@@ -13,12 +13,11 @@ BEGIN
 
 use constant MAX_DELTA_MINUTES => 180;
 
-# XXX - make sure to include dates in wide range
+# XXX - TODO: add more ?
 my @dates = (
 	[ 2003, 12, 23, 9, 43 ],
 	[ 2005, 8, 5, 3, 5 ]
 );
-
 
 foreach my $d_data (@dates) {
 	my %args;
@@ -41,7 +40,6 @@ foreach my $d_data (@dates) {
 
 	check_deltas($dt, $prev_new_moon);
 }
-
 
 sub check_deltas
 {

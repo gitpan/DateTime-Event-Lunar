@@ -1,9 +1,6 @@
 package DateTime::Event::Lunar;
 use strict;
-use vars qw($VERSION);
-BEGIN {
-    $VERSION = '0.01';
-}
+use vars qw($VERSION @ISA %EXPORT_TAGS);
 use DateTime;
 use DateTime::Set;
 use DateTime::Util::Calc qw(
@@ -11,14 +8,27 @@ use DateTime::Util::Calc qw(
     mod binary_search bigfloat
 );
 use DateTime::Util::Astro::Moon qw(MEAN_SYNODIC_MONTH);
+use Exporter;
 use Math::Round qw(round);
 use Params::Validate();
+BEGIN {
+    $VERSION = '0.01';
+    @ISA     = qw(Exporter);
+    %EXPORT_TAGS = (
+        phases => [ qw(NEW_MOON FIRST_QUARTER FULL_MOON LAST_QUARTER) ]
+    );
+    Exporter::export_ok_tags('phases');
+}
+use constant NEW_MOON        => 0;
+use constant FIRST_QUARTER   => 90;
+use constant FULL_MOON       => 180;
+use constant LAST_QUARTER    => 270;
+use constant ZEROTH_NEW_MOON => DateTime::Util::Astro::Moon::nth_new_moon(0);
 
 sub _new
 {
     my $class = shift;
-    return bless { _firstcall => 1 }, $class;
-    
+    return bless {}, $class;
 }
 
 sub new_moon
@@ -34,17 +44,21 @@ sub new_moon
 sub lunar_phase
 {
     my $class = shift;
-    my $phase = shift;
-    my $self  = $class->_new(@_);
+    my $self  = $class->_new();
+
+    my %args  = Params::Validate::validate(@_, {
+        phase => Params::Validate::SCALAR()
+    } );
+    my $phase = $args{phase};
     return DateTime::Set->from_recurrence(
         next     => sub {
-            $self->lunar_pharse_after(
+            $self->lunar_phase_after(
                 datetime    => $_[0],
                 phase       => $phase,
             )
         },
         previous => sub {
-            $self->lunar_pharse_before(
+            $self->lunar_phase_before(
                 datetime    => $_[0],
                 phase       => $phase,
             )
@@ -62,24 +76,13 @@ sub new_moon_before
     } );
     my $dt = $args{datetime};
 
-    my $firstcall = 
-        (ref($self) && UNIVERSAL::isa($self, __PACKAGE__)) ?
-            delete $self->{_firstcall} :
-            1;
-
-    my $t0  = DateTime::Util::Astro::Moon::nth_new_moon(0);
     my $phi = DateTime::Util::Astro::Moon::lunar_phase($dt);
-    my $n = round( (moment($dt) - moment($t0)) / MEAN_SYNODIC_MONTH - 
-        $phi / 360 );
+    my $n = round( (moment($dt) - moment(ZEROTH_NEW_MOON)) /
+        MEAN_SYNODIC_MONTH - $phi / 360 );
 
-    # if firstcall, this is new_moon_ON_OR_BEFORE. otherwise
-    # it's new_moon_BEFORE
-    my $checksub = $firstcall ?
-        sub { DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0])) <= $dt } :
-        sub { DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0])) < $dt };
     my $rv = search_next(
         base  => $n,
-        check => $checksub,
+        check => sub { DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0])) < $dt },
         next  => sub { $_[0] - 1 }
     );
     return DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($rv));
@@ -94,27 +97,18 @@ sub new_moon_after
     } );
     my $dt = $args{datetime};
 
-    my $firstcall = 
-        (ref($self) && UNIVERSAL::isa($self, __PACKAGE__)) ?
-            delete $self->{_firstcall} :
-            1;
-
-    my $t0  = DateTime::Util::Astro::Moon::nth_new_moon(0);
     my $phi = DateTime::Util::Astro::Moon::lunar_phase($dt);
-    my $n = round( (moment($dt) - moment($t0)) / MEAN_SYNODIC_MONTH - 
-        $phi / 360 );
+    my $n = round( (moment($dt) - moment(ZEROTH_NEW_MOON)) /
+        MEAN_SYNODIC_MONTH - $phi / 360 );
 
-    # if firstcall, this is new_moon_ON_OR_AFTER. otherwise
-    # it's new_moon_AFTER
-    my $checksub = $firstcall ?
-        sub { DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0])) >= $dt } :
-        sub { DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0])) > $dt };
     my $rv = search_next(
         base  => $n,
-        check => $checksub
+        check => sub { DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0])) > $dt }
     );
     return DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($rv));
 }
+
+use constant LUNAR_PHASE_DELTA => 10 ** -5;
 
 # [1] p.192
 sub lunar_phase_before
@@ -126,19 +120,13 @@ sub lunar_phase_before
     });
     my($dt, $phi) = ($args{datetime}, $args{phase});
 
-    my $firstcall = 
-        (ref($self) && UNIVERSAL::isa($self, __PACKAGE__)) ?
-            delete $self->{_firstcall} :
-            1;
-
-    my $epsilon = 10 ** -5;
     my $tau     = moment($dt) - (bigfloat(1) / 360) * MEAN_SYNODIC_MONTH *
         mod(DateTime::Util::Astro::Moon::lunar_phase($dt) - $phi, 360);
     my $l       = $tau - 2;
     my $u       = min(moment($dt), $tau + 2);
 
     my $rv = binary_search($l, $u,
-        sub { abs($_[0] - $_[1]) <= $epsilon },
+        sub { abs($_[0] - $_[1]) <= LUNAR_PHASE_DELTA },
         sub { mod(DateTime::Util::Astro::Moon::lunar_phase(
             dt_from_moment($_[0])) - $phi, 360) < 180 } );
     return dt_from_moment(bf_downgrade($rv));
@@ -154,22 +142,36 @@ sub lunar_phase_after
     });
     my($dt, $phi) = ($args{datetime}, $args{phase});
 
-    my $firstcall = 
-        (ref($self) && UNIVERSAL::isa($self, __PACKAGE__)) ?
-            delete $self->{_firstcall} :
-            1;
+    my $current_phase = DateTime::Util::Astro::Moon::lunar_phase($dt);
 
-    my $epsilon = 10 ** -5;
-    my $tau     = moment($dt) + (bigfloat(1) / 360) * MEAN_SYNODIC_MONTH *
-        mod($phi - DateTime::Util::Astro::Moon::lunar_phase($dt), 360);
-    my $l       = max(moment($dt), $tau - 2);
+    # these values don't need to be "Math::BigFloat", so downgrade for
+    # faster calculation...
+    my $tau     = bf_downgrade(
+        moment($dt) + (bigfloat(1) / 360) * MEAN_SYNODIC_MONTH *
+        mod($phi - DateTime::Util::Astro::Moon::lunar_phase($dt), 360)
+    );
+    my $l       = bf_downgrade( max(moment($dt), $tau - 2) );
     my $u       = $tau + 2;
 
-    my $rv = binary_search($l, $u,
-        sub { abs($_[0] - $_[1]) <= $epsilon },
+    my $rv_moment = binary_search($l, $u,
+        sub { abs($_[0] - $_[1]) <= LUNAR_PHASE_DELTA },
         sub { mod(DateTime::Util::Astro::Moon::lunar_phase(
             dt_from_moment($_[0])) - $phi, 360) < 180 } );
-    return dt_from_moment(bf_downgrade($rv));
+    my $rv = dt_from_moment(bf_downgrade($rv_moment));
+
+    # if the delta is within some amount, we've probably just calculated
+    # the same date for the same lunar phase. In that case we just
+    # jump ahead 28 days (which is still safely before the next
+    # date/time for the given phase) and re-calculate
+    my $delta = $rv->delta_ms($dt);
+    if (abs($delta->delta_minutes()) < 60) {
+        return $self->lunar_phase_after(
+            datetime => $dt + DateTime::Duration->new(days => 28),
+            phase    => $phi
+        );
+    } else {
+        return $rv;
+    }
 }
 
 1;
@@ -200,7 +202,7 @@ DateTime::Event::Lunar - Perl DateTime Extension For Computing Lunar Events
     print $dt->datetime, "\n";
   }
 
-  my $lunar_phase = DateTime::Event::Lunar->lunar_phase($phase);
+  my $lunar_phase = DateTime::Event::Lunar->lunar_phase(phase => $phase);
   # same as new_moon, but returns DateTime objects
   # when the lunar phase is at $phase degress.
 
@@ -233,44 +235,60 @@ next or previous new moon.
 
 Or you can use it in conjunction with DateTime::Span. See SYNOPSIS.
 
-=head2 DateTime::Event::Lunar-E<gt>new_moon_after($dt)
+=head2 DateTime::Event::Lunar-E<gt>new_moon_after(%args)
 
-Returns a DateTime object representing the next new moon, which may fall
-on the same date given by $dt. 
+Returns a DateTime object representing the next new moon relative to the
+datetime argument.
 
   my $next_dt = DateTime::Event::Lunar->new_moon_after(datetime => $dt0);
 
 This is the function that is internally used by new_moon()-E<gt>next().
-Note that in order to make DateTime::Span work, this function works slightly
-differently depending on the timing that it is called. Namely, the first
-time (or when it's called as a class method) it's called, this function
-effectively calculates new moon B<on or after> the given date. However,
-from the second call on, it calculates the next new moon, not including
-the given date.
 
 =head2 DateTime::Event::Lunar-E<gt>new_moon_before(%args)
 
-Returns a DateTime object representing the previous new moon, which may fall
-on the same date given by $dt:
+Returns a DateTime object representing the previous new moon relative
+to the datetime argument.
 
   my $prev_dt = DateTime::Event::Lunar->new_moon_before(datetime => $dt0);
 
 This is the function that is internally used by new_moon()-E<gt>previous().
-Note that in order to make DateTime::Span work, this function works slightly
-differently depending on the timing that it is called. Namely, the first
-time (or when it's called as a class method) it's called, this function
-effectively calculates new moon B<on or before> the given date. However,
-from the second call on, it calculates the previous new moon, not including
-the given date.
 
-=head2 DateTime::Event::Lunar-E<gt>lunar_phase($phase)
+=head2 DateTime::Event::Lunar-E<gt>lunar_phase(%args)
 
 Returns a DateTime::Set object that you can use to get the date of the
 next or previous date, when the lunar longitude is at $phase degrees
 
-  my $set = DateTime::Event::Lunar->lunar_phase(60);
+  my $set = DateTime::Event::Lunar->lunar_phase(phase => 60);
   my $dt  = DateTime->now();
   my $dt_at_longitude_60 = $set->next($dt);
+
+Or you can use it in conjunction with DateTime::Span. See SYNOPSIS.
+
+=head2 DateTime::Event::Lunar-E<gt>lunar_phase_after(%args);
+
+Returns a DateTime object representing the next date that the lunar
+phase is equal to the phase argument, relative to the datetime argument.
+
+  use DateTime::Event::Lunar qw(:phases);
+  my $next_dt = DateTime::Event::Lunar->lunar_phase_after(
+    datetime => $dt,
+    phase    => FULL_MOON
+  );
+
+This is the function that is internally used by lunar_pharse()-E<gt>next()
+
+=head2 DateTime::Event::Lunar-E<gt>lunar_phase_before(%args);
+
+Returns a DateTime object representing the previous date that the lunar
+phase is equal to the phase argument, relative to the datetime argument.
+
+  use DateTime::Event::Lunar qw(:phases);
+  my $prev_dt = DateTime::Event::Lunar->lunar_phase_before(
+    datetime => $dt,
+    phase    => FULL_MOON
+  );
+
+This is the function that is internally used by lunar_pharse()-E<gt>previous()
 
 =head1 CAVEATS
 
@@ -279,6 +297,8 @@ because it needs to calculate all the possible values within the span
 first. If you are going to be using these values in different places,
 it is strongly suggested that you create one spanset before hand that
 others can refer to.
+
+Lunar phases are even slower than new moons. It would be nice to fix it...
 
 =head1 AUTHOR
 
