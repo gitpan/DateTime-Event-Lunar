@@ -14,14 +14,14 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 8e992f801397040d93fda06874f083051286592c Build.PL
-SHA1 27500cda47316ae1359ca06975af9ccd78b0957e CHANGES
+SHA1 23f3a0a5f29afa1df7cccf3040004c87fcba7725 Build.PL
+SHA1 5996a03dfcc63bf5fbc704052f3d5af65779fd72 CHANGES
 SHA1 3933b8775a7af6f0ae9dd661c838554bdc41fa63 LICENSE
 SHA1 5c9fbf9169cdd8ec88fe0a53103d863e559699a4 MANIFEST
 SHA1 c67c44a8d5fc66e1f3a9906fd5852f6d9bfa1adc META.yml
 SHA1 1849b2e69cd3bf568e221f73cf6e91ebae6489c0 Makefile.PL
 SHA1 485e5d9297b6ba972b5b5803d959ce567ed907bc TODO
-SHA1 db7b0b7174dc277587332bd2113d890193f5c438 lib/DateTime/Event/Lunar.pm
+SHA1 b116a3d3f682dffd02826aadb50ff32353359cee lib/DateTime/Event/Lunar.pm
 SHA1 f64f9abfa6dd9fcdf6b5c6ca8c9287cc7cce41fd t/01-new_moon_sanity.t
 SHA1 d217eb4beb53e4277c049db4b8e802f8b07caaf4 t/02-new_moon_sequence.t
 SHA1 d4a36534495bcbda9eca4c7fbbf010dcfcc03d63 t/03-lunar_phase_sanity.t
@@ -29,7 +29,7 @@ SHA1 d4a36534495bcbda9eca4c7fbbf010dcfcc03d63 t/03-lunar_phase_sanity.t
 Version: GnuPG v1.0.6 (GNU/Linux)
 Comment: For info see http://www.gnupg.org
 
-iD8DBQE/6U3tpIZqybP6lHMRAgqsAKDqrKVRN/oWpDNZ2trIQYaB90LMnACgxD8a
-UJf/MFthmD1lEGRJmv74eu8=
-=4hPa
+iD8DBQE/7isApIZqybP6lHMRAtCqAJwNybRW5X47RjYEhkbGTbZwInN/9ACgpoth
+yf25J6VtkP/VHkxtIOpoQMU=
+=f2VN
 -----END PGP SIGNATURE-----

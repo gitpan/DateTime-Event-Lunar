@@ -80,12 +80,14 @@ sub new_moon_before
     my $n = round( (moment($dt) - moment(ZEROTH_NEW_MOON)) /
         MEAN_SYNODIC_MONTH - $phi / 360 );
 
-    my $rv = search_next(
+    my $nm_index = search_next(
         base  => $n,
         check => sub { DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0])) < $dt },
         next  => sub { $_[0] - 1 }
     );
-    return DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($rv));
+    my $rv = DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($nm_index));
+    $rv->set_time_zone($dt->time_zone);
+    return $rv;
 }
 
 # [1] p.190
@@ -93,7 +95,8 @@ sub new_moon_after
 {
     my $self = shift;
     my(%args) = Params::Validate::validate(@_, {
-        datetime => { isa => 'DateTime' }
+        datetime => { isa => 'DateTime' },
+        on_or_after => { type => Params::Validate::BOOLEAN(), default => 0 }
     } );
     my $dt = $args{datetime};
 
@@ -101,11 +104,15 @@ sub new_moon_after
     my $n = round( (moment($dt) - moment(ZEROTH_NEW_MOON)) /
         MEAN_SYNODIC_MONTH - $phi / 360 );
 
-    my $rv = search_next(
+    my $nm_index = search_next(
         base  => $n,
-        check => sub { DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0])) > $dt }
+        check => sub {
+            my $p = DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0]));
+            $args{on_or_after} ? $p >= $dt : $p > $dt }
     );
-    return DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($rv));
+    my $rv = DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($nm_index));
+    $rv->set_time_zone($dt->time_zone);
+    return $rv;
 }
 
 use constant LUNAR_PHASE_DELTA => 10 ** -5;
@@ -125,11 +132,13 @@ sub lunar_phase_before
     my $l       = $tau - 2;
     my $u       = min(moment($dt), $tau + 2);
 
-    my $rv = binary_search($l, $u,
+    my $moment = binary_search($l, $u,
         sub { abs($_[0] - $_[1]) <= LUNAR_PHASE_DELTA },
         sub { mod(DateTime::Util::Astro::Moon::lunar_phase(
             dt_from_moment($_[0])) - $phi, 360) < 180 } );
-    return dt_from_moment(bf_downgrade($rv));
+    my $rv = dt_from_moment(bf_downgrade($moment));
+    $rv->set_time_zone($dt->time_zone);
+    return $rv;
 }
 
 # [1] p.192
@@ -139,6 +148,7 @@ sub lunar_phase_after
     my %args = Params::Validate::validate(@_, {
         datetime => { isa => 'DateTime' },
         phase    => { type => Params::Validate::SCALAR() },
+        on_or_after => { type => Params::Validate::BOOLEAN(), default => 0 }
     });
     my($dt, $phi) = ($args{datetime}, $args{phase});
 
@@ -163,15 +173,19 @@ sub lunar_phase_after
     # the same date for the same lunar phase. In that case we just
     # jump ahead 28 days (which is still safely before the next
     # date/time for the given phase) and re-calculate
-    my $delta = $rv->delta_ms($dt);
-    if (abs($delta->delta_minutes()) < 60) {
-        return $self->lunar_phase_after(
-            datetime => $dt + DateTime::Duration->new(days => 28),
-            phase    => $phi
-        );
-    } else {
-        return $rv;
+
+    if ($args{on_or_after}) {
+	    my $delta = $rv->delta_ms($dt);
+	    if (abs($delta->delta_minutes()) < 60) {
+	        $rv = $self->lunar_phase_after(
+	            datetime => $dt + DateTime::Duration->new(days => 28),
+	            phase    => $phi
+	        );
+	    }
     }
+
+    $rv->set_time_zone($dt->time_zone);
+    return $rv;
 }
 
 1;
@@ -243,6 +257,17 @@ datetime argument.
   my $next_dt = DateTime::Event::Lunar->new_moon_after(datetime => $dt0);
 
 This is the function that is internally used by new_moon()-E<gt>next().
+While the DateTime::Set interface requires that the next() function always
+returns a date *after* the given date, for some calculations it is
+required that a new moon on *or* after is computed. This can be achieved
+by setting the C<on_or_after> parameter:
+
+  my $on_or_after = DateTime::Event::Lunar->new_moon_after(
+    datetime => $dt0,
+    on_or_after => 1
+  );
+
+The default for this parameter is false.
 
 =head2 DateTime::Event::Lunar-E<gt>new_moon_before(%args)
 
@@ -275,7 +300,19 @@ phase is equal to the phase argument, relative to the datetime argument.
     phase    => FULL_MOON
   );
 
-This is the function that is internally used by lunar_pharse()-E<gt>next()
+This is the function that is internally used by lunar_phase()-E<gt>next()
+While the DateTime::Set interface requires that the next() function always
+returns a date *after* the given date, for some calculations it is
+required that a lunar phase date on *or* after is computed. This can be
+achieved by setting the C<on_or_after> parameter:
+
+  my $on_or_after = DateTime::Event::Lunar->lunar_phase_after(
+    datetime => $dt0,
+    phase    => FULL_MOON,
+    on_or_after => 1
+  );
+
+The default for this parameter is false.
 
 =head2 DateTime::Event::Lunar-E<gt>lunar_phase_before(%args);
 
@@ -288,7 +325,7 @@ phase is equal to the phase argument, relative to the datetime argument.
     phase    => FULL_MOON
   );
 
-This is the function that is internally used by lunar_pharse()-E<gt>previous()
+This is the function that is internally used by lunar_phase()-E<gt>previous()
 
 =head1 CAVEATS
 

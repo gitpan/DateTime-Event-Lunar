@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.01_04 27 Dec 2003
+  - Some routines just *need* to be able to compute dates that are
+    *on or after* instead of just *after* (same for before), so
+    tentatively introducing the "on_or_after/before" options
+
 0.01_03 23 Dec 2003
   - Fix silly typo
   - Fix lunar_phase*() functions so that successive calls to next()
