@@ -1,3 +1,8 @@
+# $Id: Lunar.pm,v 1.7 2005/01/08 02:25:44 lestrrat Exp $
+#
+# Daisuke Maki <dmaki@cpan.org>
+# All rights reserved.
+
 package DateTime::Event::Lunar;
 use strict;
 use vars qw($VERSION @ISA %EXPORT_TAGS);
@@ -10,9 +15,8 @@ use DateTime::Util::Calc qw(
 use DateTime::Util::Astro::Moon qw(MEAN_SYNODIC_MONTH);
 use Exporter;
 use Math::Round qw(round);
-use Params::Validate();
 BEGIN {
-    $VERSION = '0.03';
+    $VERSION = '0.04';
     @ISA     = qw(Exporter);
     %EXPORT_TAGS = (
         phases => [ qw(NEW_MOON FIRST_QUARTER FULL_MOON LAST_QUARTER) ]
@@ -49,10 +53,8 @@ sub lunar_phase
 {
     my $class = shift;
     my $self  = $class->_new();
+    my %args  = @_;
 
-    my %args  = Params::Validate::validate(@_, {
-        phase => Params::Validate::SCALAR()
-    } );
     my $phase = $args{phase};
     return DateTime::Set->from_recurrence(
         next     => sub {
@@ -76,10 +78,7 @@ sub lunar_phase
 sub new_moon_before
 {
     my $self = shift;
-    my(%args) = Params::Validate::validate(@_, {
-        datetime => { isa => 'DateTime' },
-        on_or_before => { type => Params::Validate::BOOLEAN(), default => 0 }
-    } );
+    my %args = @_; # datetime => $dt, on_or_before => $boolean
     my $dt = $args{datetime};
     return $dt if $dt->is_infinite;
 
@@ -104,10 +103,7 @@ sub new_moon_before
 sub new_moon_after
 {
     my $self = shift;
-    my(%args) = Params::Validate::validate(@_, {
-        datetime => { isa => 'DateTime' },
-        on_or_after => { type => Params::Validate::BOOLEAN(), default => 0 }
-    } );
+    my %args = @_; # datetime => $dt, on_or_after => $boolean
     my $dt = $args{datetime};
     return $dt if $dt->is_infinite;
 
@@ -133,10 +129,7 @@ use constant LUNAR_PHASE_DELTA => 10 ** -5;
 sub lunar_phase_before
 {
     my $self = shift;
-    my %args = Params::Validate::validate(@_, {
-        datetime => { isa => 'DateTime' },
-        phase    => { type => Params::Validate::SCALAR() },
-    });
+    my %args = @_; # datetime => $dt, phase => $phae
     my($dt, $phi) = ($args{datetime}, $args{phase});
     return $dt if $dt->is_infinite;
 
@@ -159,11 +152,7 @@ sub lunar_phase_before
 sub lunar_phase_after
 {
     my $self = shift;
-    my %args = Params::Validate::validate(@_, {
-        datetime => { isa => 'DateTime' },
-        phase    => { type => Params::Validate::SCALAR() },
-        on_or_after => { type => Params::Validate::BOOLEAN(), default => 0 }
-    });
+    my %args = @_; # datetime => $dt, phase => $phase, on_or_after => $boolean
     my($dt, $phi) = ($args{datetime}, $args{phase});
 
     my $current_phase = DateTime::Util::Astro::Moon::lunar_phase($dt);
@@ -203,31 +192,6 @@ sub lunar_phase_after
     return $rv;
 }
 
-BEGIN
-{
-    # As far as the tests are concerned, there's a small gain
-    # from below memoization... I don't know about general use
-    if (eval { require Memoize }) {
-        Memoize::memoize('new_moon_before', NORMALIZER => sub {
-            shift;
-            my(%args) = Params::Validate::validate(@_, {
-                datetime => { isa => 'DateTime' },
-                on_or_before => { type => Params::Validate::BOOLEAN(), default => 0 }
-            } );
-            ($args{datetime}->utc_rd_values)[0] . "." . $args{on_or_before}
-        });
-        
-        Memoize::memoize('new_moon_after', NORMALIZER => sub {
-            shift;
-            my(%args) = Params::Validate::validate(@_, {
-                datetime => { isa => 'DateTime' },
-                on_or_after => { type => Params::Validate::BOOLEAN(), default => 0 }
-            } );
-            ($args{datetime}->utc_rd_values)[0] . "." . $args{on_or_after}
-        });
-    }
-}
-        
 1;
 
 __END__
@@ -379,7 +343,7 @@ Lunar phases are even slower than new moons. It would be nice to fix it...
 
 =head1 AUTHOR
 
-Daisuke Maki E<lt>daisuke@cpan.orgE<gt>
+Daisuke Maki E<lt>dmaki@cpan.orgE<gt>
 
 =head1 REFERENCES
 

@@ -1,43 +1,36 @@
+# $Id: Build.PL,v 1.4 2005/01/08 02:25:43 lestrrat Exp $
+#
+# Daisuke Maki <dmaki@cpan.org>
+# All rights reserved.
+
 use strict;
 use Module::Build;
 
-my %requires = (
-    'DateTime' => 0,
-    'DateTime::Set' => 0,
-    'DateTime::Util::Calc' => 0,
-    'DateTime::Util::Astro::Moon' => 0,
-    'DateTime::Util::Astro::Sun' => 0,
-    'Math::Round' => 0,
-    'Params::Validate' => 0,
-);
+my $class = Module::Build->subclass(code => q|
+    sub ACTION_manifest
+    {
+        my $self = shift;
+        $self->SUPER::ACTION_manifest();
+        if ($self->create_makefile_pl) {
+            $self->_add_to_manifest('MANIFEST', 'Makefile.PL        Added here by Build.PL');
+        }
+    }
+|);
 
-my $do_memoize = 0;
-my $memoize_installed = eval { require Memoize };
-
-if (!$memoize_installed) {
-    $do_memoize = Module::Build->y_n(
-      "  Would you like to install Memoize?\n\n" .
-      "  DateTime::Event::Lunar by default tries to cache dates of new moons\n" .
-      "  using Memoize (if available), which in some cases improves performance.\n\n" .
-      "  Install Memoize? ",
-      "n"
-    );
-}
-
-if ($do_memoize) {
-    print "Adding Memoize to list of prerequisites...\n";
-    $requires{ Memoize } = 0;
-}
-
-my $build = Module::Build->new(
+my $build = $class->new(
     module_name => 'DateTime::Event::Lunar',
     license => 'perl',
-    requires => \%requires,
-    recommends => {
-        'perl' => '5.6.1',
+    requires => {
+        'DateTime' => 0,
+        'DateTime::Set' => 0,
+        'DateTime::Util::Calc' => '0.08',
+        'DateTime::Util::Astro::Common' => '0.02',
+        'DateTime::Util::Astro::Moon' => '0.04',
+        'DateTime::Util::Astro::Sun' => '0.03',
+        'Math::Round' => 0,
+        'Params::Validate' => 0,
     },
     sign => 1,
-    create_readme => 1,
-    create_makefile_pl => 'passthrough'
+    create_makefile_pl => 'traditional'
 );
 $build->create_build_script;

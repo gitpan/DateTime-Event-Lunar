@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.04 11 Jan 2005
+  - Reequire newer Datetime::Util::Calc/DateTime::Util::Astro
+  - Tweak tests so that allowed delta is much less (now 1/6 of
+    what it used to be)
+
+0.03 24 Jul 2004
+  - Handle infinite datetime
+
 0.02 10 Feb 2004
   - Add prompt to ask about installing Memoize
   - Slightly reduce on some function calls to save time calculating

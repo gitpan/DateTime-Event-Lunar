@@ -6,6 +6,7 @@ BEGIN
     use_ok("DateTime::Event::Lunar");
 }
 
+use constant ALLOWED_DELTA_SECONDS => 60;
 my $dt = DateTime->now();
 $dt->set_time_zone('UTC');
 
@@ -38,8 +39,8 @@ diag "  Generating new moons... Please hold.";
     for(0..$count - 1) {
         my $asc_dt = $ascending[$_];
         my $dec_dt = $descending[4 - $_];
-        my $delta  = $asc_dt->delta_ms($dec_dt);
-    
-        ok($delta->minutes() < 1);
+
+        my $delta = abs($dec_dt->epoch - $asc_dt->epoch);;
+        ok($delta < ALLOWED_DELTA_SECONDS, "Delta = $delta < " . ALLOWED_DELTA_SECONDS);
     }
 }

@@ -3,11 +3,9 @@ CHANGES
 lib/DateTime/Event/Lunar.pm
 LICENSE
 Makefile.PL
-META.yml
 MANIFEST
+META.yml
 t/01-new_moon_sanity.t
 t/02-new_moon_sequence.t
 t/03-lunar_phase_sanity.t
-TODO
-
 SIGNATURE    Added here by Module::Build

@@ -11,7 +11,7 @@ BEGIN
 	use_ok("DateTime::Event::Lunar");
 }
 
-use constant MAX_DELTA_MINUTES => 180;
+use constant MAX_DELTA_MINUTES => 10;
 
 # XXX - TODO: add more ?
 my @dates = (
