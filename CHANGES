@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.02 10 Feb 2004
+  - Add prompt to ask about installing Memoize
+  - Slightly reduce on some function calls to save time calculating
+
 0.01 12 Jan 2004
   - Bump up version
 

@@ -1,5 +1,5 @@
 This file contains message digests of all files listed in MANIFEST,
-signed via the Module::Signature module, version 0.37.
+signed via the Module::Signature module, version 0.38.
 
 To verify the content in this distribution, first make sure you have
 Module::Signature installed, then type:
@@ -14,14 +14,14 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 23f3a0a5f29afa1df7cccf3040004c87fcba7725 Build.PL
-SHA1 c7986cdab5926a1a2ac968929a145c1bb6202cea CHANGES
+SHA1 6a3b89267da3542403ed6bf02238a4991de94e58 Build.PL
+SHA1 389ddf3dd72090609ddacaa471b87e2ff8e0bd37 CHANGES
 SHA1 3933b8775a7af6f0ae9dd661c838554bdc41fa63 LICENSE
 SHA1 5c9fbf9169cdd8ec88fe0a53103d863e559699a4 MANIFEST
-SHA1 c67c44a8d5fc66e1f3a9906fd5852f6d9bfa1adc META.yml
-SHA1 1849b2e69cd3bf568e221f73cf6e91ebae6489c0 Makefile.PL
+SHA1 2ca82e4db6fc932f324a6019fc8c5111590a2daa META.yml
+SHA1 faec519f213f7e603ecd1420d147b35713757738 Makefile.PL
 SHA1 485e5d9297b6ba972b5b5803d959ce567ed907bc TODO
-SHA1 b116a3d3f682dffd02826aadb50ff32353359cee lib/DateTime/Event/Lunar.pm
+SHA1 26793c20890049d0ef6e715140ef894d3f9f4329 lib/DateTime/Event/Lunar.pm
 SHA1 f64f9abfa6dd9fcdf6b5c6ca8c9287cc7cce41fd t/01-new_moon_sanity.t
 SHA1 d217eb4beb53e4277c049db4b8e802f8b07caaf4 t/02-new_moon_sequence.t
 SHA1 d4a36534495bcbda9eca4c7fbbf010dcfcc03d63 t/03-lunar_phase_sanity.t
@@ -29,7 +29,7 @@ SHA1 d4a36534495bcbda9eca4c7fbbf010dcfcc03d63 t/03-lunar_phase_sanity.t
 Version: GnuPG v1.0.6 (GNU/Linux)
 Comment: For info see http://www.gnupg.org
 
-iD8DBQFAA3uppIZqybP6lHMRAgd2AJ4uf8o6FZAQpQJCr4VTNg1zAzAYngCfV4PF
-jHL4xWDN4nY570hzAiDDpJE=
-=xFC3
+iD8DBQFAKQqTpIZqybP6lHMRAthqAKCLkA2BiCC9URBaZX/IPxHByUmhbQCfXZxP
+DU+foAsNrRIfhvv7Vlph2hw=
+=/IFU
 -----END PGP SIGNATURE-----

@@ -12,7 +12,7 @@ use Exporter;
 use Math::Round qw(round);
 use Params::Validate();
 BEGIN {
-    $VERSION = '0.01';
+    $VERSION = '0.02';
     @ISA     = qw(Exporter);
     %EXPORT_TAGS = (
         phases => [ qw(NEW_MOON FIRST_QUARTER FULL_MOON LAST_QUARTER) ]
@@ -65,14 +65,14 @@ sub lunar_phase
         }
     );
 }
-    
 
 # [1] p.190
 sub new_moon_before
 {
     my $self = shift;
     my(%args) = Params::Validate::validate(@_, {
-        datetime => { isa => 'DateTime' }
+        datetime => { isa => 'DateTime' },
+        on_or_before => { type => Params::Validate::BOOLEAN(), default => 0 }
     } );
     my $dt = $args{datetime};
 
@@ -82,7 +82,10 @@ sub new_moon_before
 
     my $nm_index = search_next(
         base  => $n,
-        check => sub { DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0])) < $dt },
+        check => sub {
+            my $p = DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0]));
+            $args{on_or_before} ? $p <= $dt : $p < $dt
+        },
         next  => sub { $_[0] - 1 }
     );
     my $rv = DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($nm_index));
@@ -108,7 +111,8 @@ sub new_moon_after
         base  => $n,
         check => sub {
             my $p = DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0]));
-            $args{on_or_after} ? $p >= $dt : $p > $dt }
+            $args{on_or_after} ? $p >= $dt : $p > $dt },
+        next  => sub { $_[0] + 1 }
     );
     my $rv = DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($nm_index));
     $rv->set_time_zone($dt->time_zone);
@@ -127,10 +131,11 @@ sub lunar_phase_before
     });
     my($dt, $phi) = ($args{datetime}, $args{phase});
 
-    my $tau     = moment($dt) - (bigfloat(1) / 360) * MEAN_SYNODIC_MONTH *
+    my $dt_moment = moment($dt);
+    my $tau       = $dt_moment - (bigfloat(1) / 360) * MEAN_SYNODIC_MONTH *
         mod(DateTime::Util::Astro::Moon::lunar_phase($dt) - $phi, 360);
-    my $l       = $tau - 2;
-    my $u       = min(moment($dt), $tau + 2);
+    my $l         = $tau - 2;
+    my $u         = min($dt_moment, $tau + 2);
 
     my $moment = binary_search($l, $u,
         sub { abs($_[0] - $_[1]) <= LUNAR_PHASE_DELTA },
@@ -188,6 +193,31 @@ sub lunar_phase_after
     return $rv;
 }
 
+BEGIN
+{
+    # As far as the tests are concerned, there's a small gain
+    # from below memoization... I don't know about general use
+    if (eval { require Memoize }) {
+        Memoize::memoize('new_moon_before', NORMALIZER => sub {
+            shift;
+            my(%args) = Params::Validate::validate(@_, {
+                datetime => { isa => 'DateTime' },
+                on_or_before => { type => Params::Validate::BOOLEAN(), default => 0 }
+            } );
+            ($args{datetime}->utc_rd_values)[0] . "." . $args{on_or_before}
+        });
+        
+        Memoize::memoize('new_moon_after', NORMALIZER => sub {
+            shift;
+            my(%args) = Params::Validate::validate(@_, {
+                datetime => { isa => 'DateTime' },
+                on_or_after => { type => Params::Validate::BOOLEAN(), default => 0 }
+            } );
+            ($args{datetime}->utc_rd_values)[0] . "." . $args{on_or_after}
+        });
+    }
+}
+        
 1;
 
 __END__

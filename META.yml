@@ -1,8 +1,10 @@
 --- #YAML:1.0
 name: DateTime-Event-Lunar
-version: 0.01
+version: 0.02
+author:
+  - Daisuke Maki E<lt>daisuke@cpan.orgE<gt>
+abstract: Perl DateTime Extension For Computing Lunar Events
 license: perl
-distribution_type: module
 requires:
   DateTime: 0
   DateTime::Set: 0
@@ -12,13 +14,11 @@ requires:
   Math::Round: 0
   Params::Validate: 0
 recommends:
-  Math::BigInt::GMP: 0
-  Memoize: 0
   perl: 5.6.1
 build_requires: {}
 conflicts: {}
 provides:
   DateTime::Event::Lunar:
     file: lib/DateTime/Event/Lunar.pm
-    version: 0.01
-generated_by: Module::Build version 0.21
+    version: 0.02
+generated_by: Module::Build version 0.22
