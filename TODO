@@ -1,0 +1,7 @@
+TODO
+
+  - Think about what kind of tests make sense (knowing that there's
+    a good possibility that we will have a high error margin, because
+    we're only *estimating*)
+
+  - Do something about the slowness. (look at DateTime-Util-Astro)

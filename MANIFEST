@@ -1,7 +1,10 @@
 Build.PL
+CHANGES
 lib/DateTime/Event/Lunar.pm
 Makefile.PL
 META.yml
 MANIFEST
+t/01-sanity.t
+TODO
 
 SIGNATURE    Added here by Module::Build

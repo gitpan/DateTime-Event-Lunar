@@ -2,13 +2,13 @@ package DateTime::Event::Lunar;
 use strict;
 use vars qw($VERSION);
 BEGIN {
-	$VERSION = '0.01';
+    $VERSION = '0.01';
 }
 use DateTime;
 use DateTime::Set;
 use DateTime::Util::Calc qw(
     bf_downgrade min max moment search_next moment dt_from_moment
-	mod binary_search bigfloat
+    mod binary_search bigfloat
 );
 use DateTime::Util::Astro::Moon qw(MEAN_SYNODIC_MONTH);
 use Math::Round qw(round);
@@ -38,17 +38,17 @@ sub lunar_phase
     my $self  = $class->_new(@_);
     return DateTime::Set->from_recurrence(
         next     => sub {
-			$self->lunar_pharse_after(
-				datetime    => $_[0],
-				phase       => $phase,
-			)
-		},
+            $self->lunar_pharse_after(
+                datetime    => $_[0],
+                phase       => $phase,
+            )
+        },
         previous => sub {
-			$self->lunar_pharse_before(
-				datetime    => $_[0],
-				phase       => $phase,
-			)
-		}
+            $self->lunar_pharse_before(
+                datetime    => $_[0],
+                phase       => $phase,
+            )
+        }
     );
 }
     
@@ -58,28 +58,28 @@ sub new_moon_before
 {
     my $self = shift;
     my(%args) = Params::Validate::validate(@_, {
-		datetime => { isa => 'DateTime' }
-	} );
-	my $dt = $args{datetime};
+        datetime => { isa => 'DateTime' }
+    } );
+    my $dt = $args{datetime};
 
-	my $firstcall = 
-		(ref($self) && UNIVERSAL::isa($self, __PACKAGE__)) ?
-			delete $self->{_firstcall} :
-			1;
+    my $firstcall = 
+        (ref($self) && UNIVERSAL::isa($self, __PACKAGE__)) ?
+            delete $self->{_firstcall} :
+            1;
 
     my $t0  = DateTime::Util::Astro::Moon::nth_new_moon(0);
     my $phi = DateTime::Util::Astro::Moon::lunar_phase($dt);
     my $n = round( (moment($dt) - moment($t0)) / MEAN_SYNODIC_MONTH - 
         $phi / 360 );
 
-	# if firstcall, this is new_moon_ON_OR_BEFORE. otherwise
-	# it's new_moon_BEFORE
-	my $checksub = $firstcall ?
-		sub { DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0])) <= $dt } :
-		sub { DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0])) < $dt };
+    # if firstcall, this is new_moon_ON_OR_BEFORE. otherwise
+    # it's new_moon_BEFORE
+    my $checksub = $firstcall ?
+        sub { DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0])) <= $dt } :
+        sub { DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0])) < $dt };
     my $rv = search_next(
         base  => $n,
-		check => $checksub,
+        check => $checksub,
         next  => sub { $_[0] - 1 }
     );
     return DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($rv));
@@ -90,25 +90,25 @@ sub new_moon_after
 {
     my $self = shift;
     my(%args) = Params::Validate::validate(@_, {
-		datetime => { isa => 'DateTime' }
-	} );
-	my $dt = $args{datetime};
+        datetime => { isa => 'DateTime' }
+    } );
+    my $dt = $args{datetime};
 
-	my $firstcall = 
-		(ref($self) && UNIVERSAL::isa($self, __PACKAGE__)) ?
-			delete $self->{_firstcall} :
-			1;
+    my $firstcall = 
+        (ref($self) && UNIVERSAL::isa($self, __PACKAGE__)) ?
+            delete $self->{_firstcall} :
+            1;
 
     my $t0  = DateTime::Util::Astro::Moon::nth_new_moon(0);
     my $phi = DateTime::Util::Astro::Moon::lunar_phase($dt);
     my $n = round( (moment($dt) - moment($t0)) / MEAN_SYNODIC_MONTH - 
         $phi / 360 );
 
-	# if firstcall, this is new_moon_ON_OR_AFTER. otherwise
-	# it's new_moon_AFTER
-	my $checksub = $firstcall ?
-		sub { DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0])) >= $dt } :
-		sub { DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0])) > $dt };
+    # if firstcall, this is new_moon_ON_OR_AFTER. otherwise
+    # it's new_moon_AFTER
+    my $checksub = $firstcall ?
+        sub { DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0])) >= $dt } :
+        sub { DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0])) > $dt };
     my $rv = search_next(
         base  => $n,
         check => $checksub
@@ -120,16 +120,16 @@ sub new_moon_after
 sub lunar_phase_before
 {
     my $self = shift;
-	my %args = Params::Validate::validate(@_, {
-		datetime => { isa => 'DateTime' },
-		phase    => { type => Params::Validate::SCALAR() },
-	});
+    my %args = Params::Validate::validate(@_, {
+        datetime => { isa => 'DateTime' },
+        phase    => { type => Params::Validate::SCALAR() },
+    });
     my($dt, $phi) = ($args{datetime}, $args{phase});
 
-	my $firstcall = 
-		(ref($self) && UNIVERSAL::isa($self, __PACKAGE__)) ?
-			delete $self->{_firstcall} :
-			1;
+    my $firstcall = 
+        (ref($self) && UNIVERSAL::isa($self, __PACKAGE__)) ?
+            delete $self->{_firstcall} :
+            1;
 
     my $epsilon = 10 ** -5;
     my $tau     = moment($dt) - (bigfloat(1) / 360) * MEAN_SYNODIC_MONTH *
@@ -141,23 +141,23 @@ sub lunar_phase_before
         sub { abs($_[0] - $_[1]) <= $epsilon },
         sub { mod(DateTime::Util::Astro::Moon::lunar_phase(
             dt_from_moment($_[0])) - $phi, 360) < 180 } );
-	return dt_from_moment(bf_downgrade($rv));
+    return dt_from_moment(bf_downgrade($rv));
 }
 
 # [1] p.192
 sub lunar_phase_after
 {
     my $self = shift;
-	my %args = Params::Validate::validate(@_, {
-		datetime => { isa => 'DateTime' },
-		phase    => { type => Params::Validate::SCALAR() },
-	});
+    my %args = Params::Validate::validate(@_, {
+        datetime => { isa => 'DateTime' },
+        phase    => { type => Params::Validate::SCALAR() },
+    });
     my($dt, $phi) = ($args{datetime}, $args{phase});
 
-	my $firstcall = 
-		(ref($self) && UNIVERSAL::isa($self, __PACKAGE__)) ?
-			delete $self->{_firstcall} :
-			1;
+    my $firstcall = 
+        (ref($self) && UNIVERSAL::isa($self, __PACKAGE__)) ?
+            delete $self->{_firstcall} :
+            1;
 
     my $epsilon = 10 ** -5;
     my $tau     = moment($dt) + (bigfloat(1) / 360) * MEAN_SYNODIC_MONTH *
@@ -169,7 +169,7 @@ sub lunar_phase_after
         sub { abs($_[0] - $_[1]) <= $epsilon },
         sub { mod(DateTime::Util::Astro::Moon::lunar_phase(
             dt_from_moment($_[0])) - $phi, 360) < 180 } );
-	return dt_from_moment(bf_downgrade($rv));
+    return dt_from_moment(bf_downgrade($rv));
 }
 
 1;
@@ -210,9 +210,9 @@ DateTime::Event::Lunar - Perl DateTime Extension For Computing Lunar Events
 
   # if you just want to calculate a single lunar phase time
   my $dt = DateTime::Event::Lunar->lunar_phase_after(
-		datetime => $dt0, phase => $degrees);
+        datetime => $dt0, phase => $degrees);
   my $dt = DateTime::Event::Lunar->lunar_phase_before(
-		datetime => $dt0, phase => $degrees);
+        datetime => $dt0, phase => $degrees);
 
 =head1 DESCRIPTION
 
