@@ -18,10 +18,10 @@ SHA1 6a3b89267da3542403ed6bf02238a4991de94e58 Build.PL
 SHA1 389ddf3dd72090609ddacaa471b87e2ff8e0bd37 CHANGES
 SHA1 3933b8775a7af6f0ae9dd661c838554bdc41fa63 LICENSE
 SHA1 5c9fbf9169cdd8ec88fe0a53103d863e559699a4 MANIFEST
-SHA1 2ca82e4db6fc932f324a6019fc8c5111590a2daa META.yml
+SHA1 e45731f84d3a66f429ae0c73bc57129f62f187f0 META.yml
 SHA1 faec519f213f7e603ecd1420d147b35713757738 Makefile.PL
 SHA1 485e5d9297b6ba972b5b5803d959ce567ed907bc TODO
-SHA1 26793c20890049d0ef6e715140ef894d3f9f4329 lib/DateTime/Event/Lunar.pm
+SHA1 7404d49992fde4c96d857c8054bc01d1e82b85df lib/DateTime/Event/Lunar.pm
 SHA1 f64f9abfa6dd9fcdf6b5c6ca8c9287cc7cce41fd t/01-new_moon_sanity.t
 SHA1 d217eb4beb53e4277c049db4b8e802f8b07caaf4 t/02-new_moon_sequence.t
 SHA1 d4a36534495bcbda9eca4c7fbbf010dcfcc03d63 t/03-lunar_phase_sanity.t
@@ -29,7 +29,7 @@ SHA1 d4a36534495bcbda9eca4c7fbbf010dcfcc03d63 t/03-lunar_phase_sanity.t
 Version: GnuPG v1.0.6 (GNU/Linux)
 Comment: For info see http://www.gnupg.org
 
-iD8DBQFAKQqTpIZqybP6lHMRAthqAKCLkA2BiCC9URBaZX/IPxHByUmhbQCfXZxP
-DU+foAsNrRIfhvv7Vlph2hw=
-=/IFU
+iD8DBQFBAaKnpIZqybP6lHMRAlAiAKDnUrqWVupaSHDfIvjxkgDXjqh7jACg0Tmo
+mYHsjiaD7QJTBTWMgfin1rQ=
+=hi8y
 -----END PGP SIGNATURE-----

@@ -12,7 +12,7 @@ use Exporter;
 use Math::Round qw(round);
 use Params::Validate();
 BEGIN {
-    $VERSION = '0.02';
+    $VERSION = '0.03';
     @ISA     = qw(Exporter);
     %EXPORT_TAGS = (
         phases => [ qw(NEW_MOON FIRST_QUARTER FULL_MOON LAST_QUARTER) ]
@@ -36,8 +36,12 @@ sub new_moon
     my $class = shift;
     my $self  = $class->_new(@_);
     return DateTime::Set->from_recurrence(
-        next     => sub { $self->new_moon_after( datetime => $_[0] ) },
-        previous => sub { $self->new_moon_before( datetime => $_[0] ) }
+        next     => sub {
+            return $_[0] if $_[0]->is_infinite;
+            $self->new_moon_after( datetime => $_[0] ) },
+        previous => sub {
+            return $_[0] if $_[0]->is_infinite;
+            $self->new_moon_before( datetime => $_[0] ) }
     );
 }
 
@@ -52,12 +56,14 @@ sub lunar_phase
     my $phase = $args{phase};
     return DateTime::Set->from_recurrence(
         next     => sub {
+            return $_[0] if $_[0]->is_infinite;
             $self->lunar_phase_after(
                 datetime    => $_[0],
                 phase       => $phase,
             )
         },
         previous => sub {
+            return $_[0] if $_[0]->is_infinite;
             $self->lunar_phase_before(
                 datetime    => $_[0],
                 phase       => $phase,
@@ -75,6 +81,7 @@ sub new_moon_before
         on_or_before => { type => Params::Validate::BOOLEAN(), default => 0 }
     } );
     my $dt = $args{datetime};
+    return $dt if $dt->is_infinite;
 
     my $phi = DateTime::Util::Astro::Moon::lunar_phase($dt);
     my $n = round( (moment($dt) - moment(ZEROTH_NEW_MOON)) /
@@ -102,6 +109,7 @@ sub new_moon_after
         on_or_after => { type => Params::Validate::BOOLEAN(), default => 0 }
     } );
     my $dt = $args{datetime};
+    return $dt if $dt->is_infinite;
 
     my $phi = DateTime::Util::Astro::Moon::lunar_phase($dt);
     my $n = round( (moment($dt) - moment(ZEROTH_NEW_MOON)) /
@@ -130,6 +138,7 @@ sub lunar_phase_before
         phase    => { type => Params::Validate::SCALAR() },
     });
     my($dt, $phi) = ($args{datetime}, $args{phase});
+    return $dt if $dt->is_infinite;
 
     my $dt_moment = moment($dt);
     my $tau       = $dt_moment - (bigfloat(1) / 360) * MEAN_SYNODIC_MONTH *
@@ -158,6 +167,7 @@ sub lunar_phase_after
     my($dt, $phi) = ($args{datetime}, $args{phase});
 
     my $current_phase = DateTime::Util::Astro::Moon::lunar_phase($dt);
+    return $dt if $dt->is_infinite;
 
     # these values don't need to be "Math::BigFloat", so downgrade for
     # faster calculation...
