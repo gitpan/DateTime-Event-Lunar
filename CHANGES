@@ -1,6 +1,9 @@
 Changelog
 =========
 
+0.01 12 Jan 2004
+  - Bump up version
+
 0.01_04 27 Dec 2003
   - Some routines just *need* to be able to compute dates that are
     *on or after* instead of just *after* (same for before), so

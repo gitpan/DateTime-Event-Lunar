@@ -15,7 +15,7 @@ not run its Makefile.PL or Build.PL.
 Hash: SHA1
 
 SHA1 23f3a0a5f29afa1df7cccf3040004c87fcba7725 Build.PL
-SHA1 5996a03dfcc63bf5fbc704052f3d5af65779fd72 CHANGES
+SHA1 c7986cdab5926a1a2ac968929a145c1bb6202cea CHANGES
 SHA1 3933b8775a7af6f0ae9dd661c838554bdc41fa63 LICENSE
 SHA1 5c9fbf9169cdd8ec88fe0a53103d863e559699a4 MANIFEST
 SHA1 c67c44a8d5fc66e1f3a9906fd5852f6d9bfa1adc META.yml
@@ -29,7 +29,7 @@ SHA1 d4a36534495bcbda9eca4c7fbbf010dcfcc03d63 t/03-lunar_phase_sanity.t
 Version: GnuPG v1.0.6 (GNU/Linux)
 Comment: For info see http://www.gnupg.org
 
-iD8DBQE/7isApIZqybP6lHMRAtCqAJwNybRW5X47RjYEhkbGTbZwInN/9ACgpoth
-yf25J6VtkP/VHkxtIOpoQMU=
-=f2VN
+iD8DBQFAA3uppIZqybP6lHMRAgd2AJ4uf8o6FZAQpQJCr4VTNg1zAzAYngCfV4PF
+jHL4xWDN4nY570hzAiDDpJE=
+=xFC3
 -----END PGP SIGNATURE-----
