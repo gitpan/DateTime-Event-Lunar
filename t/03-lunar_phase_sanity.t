@@ -5,7 +5,7 @@ BEGIN
 {
     use_ok("DateTime::Event::Lunar");
 }
-use constant MAX_DELTA_MINUTES => 15;
+use constant MAX_DELTA_MINUTES => 60;
 
 # taken from http://aa.usno.navy.mil/data/docs/MoonPhase.html
 my @phases = (

@@ -6,7 +6,6 @@ BEGIN
     use_ok("DateTime::Event::Lunar");
 }
 
-use constant ALLOWED_DELTA_SECONDS => 60;
 my $dt = DateTime->now();
 $dt->set_time_zone('UTC');
 
@@ -14,7 +13,9 @@ my $new_moon = DateTime::Event::Lunar->new_moon();
 
 my $next_new_moon = $new_moon->next($dt);
 
+diag "Generating new moons... Please hold.";
 check_sequence($dt, $new_moon);
+diag "Generating new moons backward... Please hold.";
 check_sequence($next_new_moon, $new_moon);
 
 sub check_sequence
@@ -22,7 +23,6 @@ sub check_sequence
     my($dt, $new_moon) = @_;
     my(@ascending, @descending);
 
-diag "  Generating new moons... Please hold.";
 
     my $count = 5;
     foreach (0..$count) {
@@ -41,6 +41,6 @@ diag "  Generating new moons... Please hold.";
         my $dec_dt = $descending[4 - $_];
 
         my $delta = abs($dec_dt->epoch - $asc_dt->epoch);;
-        ok($delta < ALLOWED_DELTA_SECONDS, "Delta = $delta < " . ALLOWED_DELTA_SECONDS);
+        ok($delta < 60, "Delta = $delta < 60");
     }
 }

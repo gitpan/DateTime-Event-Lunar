@@ -1,21 +1,17 @@
---- #YAML:1.0
-name: DateTime-Event-Lunar
-version: 0.04
-author:
-  - Daisuke Maki E<lt>dmaki@cpan.orgE<gt>
-abstract: Perl DateTime Extension For Computing Lunar Events
+abstract: Compute Lunar Events
+author: Copyright (c) 2004-2007 Daisuke Maki <daisuke@endeworks.jp>
+distribution_type: module
+generated_by: Module::Install version 0.64
 license: perl
-requires:
+name: DateTime-Event-Lunar
+no_index: 
+  directory: 
+    - inc
+    - t
+requires: 
   DateTime: 0
   DateTime::Set: 0
-  DateTime::Util::Astro::Common: 0.02
-  DateTime::Util::Astro::Moon: 0.04
-  DateTime::Util::Astro::Sun: 0.03
-  DateTime::Util::Calc: 0.08
+  DateTime::Util::Astro: 0.09
+  DateTime::Util::Calc: 0.13
   Math::Round: 0
-  Params::Validate: 0
-provides:
-  DateTime::Event::Lunar:
-    file: lib/DateTime/Event/Lunar.pm
-    version: 0.04
-generated_by: Module::Build version 0.2607
+version: 0.05

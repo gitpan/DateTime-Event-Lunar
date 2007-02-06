@@ -1,6 +1,6 @@
-# $Id: Lunar.pm,v 1.7 2005/01/08 02:25:44 lestrrat Exp $
+# $Id: Lunar.pm 3613 2007-02-06 01:35:10Z lestrrat $
 #
-# Daisuke Maki <dmaki@cpan.org>
+# Copyright (c) 2004-2007 Daisuke Maki <daisuke@endeworks.jp>
 # All rights reserved.
 
 package DateTime::Event::Lunar;
@@ -9,14 +9,13 @@ use vars qw($VERSION @ISA %EXPORT_TAGS);
 use DateTime;
 use DateTime::Set;
 use DateTime::Util::Calc qw(
-    bf_downgrade min max moment search_next moment dt_from_moment
-    mod binary_search bigfloat
+    min max search_next moment dt_from_moment mod binary_search
 );
 use DateTime::Util::Astro::Moon qw(MEAN_SYNODIC_MONTH);
 use Exporter;
 use Math::Round qw(round);
 BEGIN {
-    $VERSION = '0.04';
+    $VERSION = '0.05';
     @ISA     = qw(Exporter);
     %EXPORT_TAGS = (
         phases => [ qw(NEW_MOON FIRST_QUARTER FULL_MOON LAST_QUARTER) ]
@@ -89,12 +88,12 @@ sub new_moon_before
     my $nm_index = search_next(
         base  => $n,
         check => sub {
-            my $p = DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0]));
+            my $p = DateTime::Util::Astro::Moon::nth_new_moon($_[0]);
             $args{on_or_before} ? $p <= $dt : $p < $dt
         },
         next  => sub { $_[0] - 1 }
     );
-    my $rv = DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($nm_index));
+    my $rv = DateTime::Util::Astro::Moon::nth_new_moon($nm_index);
     $rv->set_time_zone($dt->time_zone);
     return $rv;
 }
@@ -114,16 +113,18 @@ sub new_moon_after
     my $nm_index = search_next(
         base  => $n,
         check => sub {
-            my $p = DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($_[0]));
+            my $p = DateTime::Util::Astro::Moon::nth_new_moon($_[0]);
             $args{on_or_after} ? $p >= $dt : $p > $dt },
         next  => sub { $_[0] + 1 }
     );
-    my $rv = DateTime::Util::Astro::Moon::nth_new_moon(bf_downgrade($nm_index));
+    my $rv = DateTime::Util::Astro::Moon::nth_new_moon($nm_index);
     $rv->set_time_zone($dt->time_zone);
     return $rv;
 }
 
 use constant LUNAR_PHASE_DELTA => 10 ** -5;
+use constant MEAN_SYNODIC_MONTH_FRAG =>
+    (Math::BigInt->bone() / 360) * MEAN_SYNODIC_MONTH;
 
 # [1] p.192
 sub lunar_phase_before
@@ -134,7 +135,7 @@ sub lunar_phase_before
     return $dt if $dt->is_infinite;
 
     my $dt_moment = moment($dt);
-    my $tau       = $dt_moment - (bigfloat(1) / 360) * MEAN_SYNODIC_MONTH *
+    my $tau       = $dt_moment - MEAN_SYNODIC_MONTH_FRAG *
         mod(DateTime::Util::Astro::Moon::lunar_phase($dt) - $phi, 360);
     my $l         = $tau - 2;
     my $u         = min($dt_moment, $tau + 2);
@@ -143,7 +144,7 @@ sub lunar_phase_before
         sub { abs($_[0] - $_[1]) <= LUNAR_PHASE_DELTA },
         sub { mod(DateTime::Util::Astro::Moon::lunar_phase(
             dt_from_moment($_[0])) - $phi, 360) < 180 } );
-    my $rv = dt_from_moment(bf_downgrade($moment));
+    my $rv = dt_from_moment($moment);
     $rv->set_time_zone($dt->time_zone);
     return $rv;
 }
@@ -158,20 +159,19 @@ sub lunar_phase_after
     my $current_phase = DateTime::Util::Astro::Moon::lunar_phase($dt);
     return $dt if $dt->is_infinite;
 
-    # these values don't need to be "Math::BigFloat", so downgrade for
-    # faster calculation...
-    my $tau     = bf_downgrade(
-        moment($dt) + (bigfloat(1) / 360) * MEAN_SYNODIC_MONTH *
+    my $dt_moment = moment($dt);
+    my $tau     = 
+        $dt_moment + MEAN_SYNODIC_MONTH_FRAG *
         mod($phi - DateTime::Util::Astro::Moon::lunar_phase($dt), 360)
-    );
-    my $l       = bf_downgrade( max(moment($dt), $tau - 2) );
+    ;
+    my $l       = max($dt_moment, $tau - 2);
     my $u       = $tau + 2;
 
     my $rv_moment = binary_search($l, $u,
         sub { abs($_[0] - $_[1]) <= LUNAR_PHASE_DELTA },
         sub { mod(DateTime::Util::Astro::Moon::lunar_phase(
             dt_from_moment($_[0])) - $phi, 360) < 180 } );
-    my $rv = dt_from_moment(bf_downgrade($rv_moment));
+    my $rv = dt_from_moment($rv_moment);
 
     # if the delta is within some amount, we've probably just calculated
     # the same date for the same lunar phase. In that case we just
@@ -198,7 +198,7 @@ __END__
 
 =head1 NAME
 
-DateTime::Event::Lunar - Perl DateTime Extension For Computing Lunar Events
+DateTime::Event::Lunar - Compute Lunar Events
 
 =head1 SYNOPSIS
 
@@ -343,7 +343,8 @@ Lunar phases are even slower than new moons. It would be nice to fix it...
 
 =head1 AUTHOR
 
-Daisuke Maki E<lt>dmaki@cpan.orgE<gt>
+Copyright (c) 2004-2007 Daisuke Maki E<lt>daisuke@endeworks.jpE<gt>
+All rights reserved.
 
 =head1 REFERENCES
 

@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.05 06 Feb 2007
+  - Require newer versions of DateTime::Util::Calc and DateTime::Util::Astro
+  - Remove bf_downgrade
+  - Beef up tests
+  - Migrate to Module::Install
+
 0.04 11 Jan 2005
   - Reequire newer Datetime::Util::Calc/DateTime::Util::Astro
   - Tweak tests so that allowed delta is much less (now 1/6 of
