@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.06 28 May 2007
+  - Use Module::Install
+  - Require newer version of DateTime::Util::Astro
+
 0.05 06 Feb 2007
   - Require newer versions of DateTime::Util::Calc and DateTime::Util::Astro
   - Remove bf_downgrade

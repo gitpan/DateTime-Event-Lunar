@@ -13,8 +13,10 @@ inc/Module/Install/WriteAll.pm
 lib/DateTime/Event/Lunar.pm
 LICENSE
 Makefile.PL
-MANIFEST
+MANIFEST			This list of files
 META.yml
 t/01-new_moon_sanity.t
 t/02-new_moon_sequence.t
 t/03-lunar_phase_sanity.t
+t/99-pod-coverage.t
+t/99-pod.t

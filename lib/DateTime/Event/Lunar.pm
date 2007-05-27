@@ -1,4 +1,4 @@
-# $Id: Lunar.pm 3613 2007-02-06 01:35:10Z lestrrat $
+# $Id: /local/datetime/modules/DateTime-Event-Lunar/trunk/lib/DateTime/Event/Lunar.pm 11665 2007-05-27T15:50:16.141243Z daisuke  $
 #
 # Copyright (c) 2004-2007 Daisuke Maki <daisuke@endeworks.jp>
 # All rights reserved.
@@ -15,7 +15,7 @@ use DateTime::Util::Astro::Moon qw(MEAN_SYNODIC_MONTH);
 use Exporter;
 use Math::Round qw(round);
 BEGIN {
-    $VERSION = '0.05';
+    $VERSION = '0.06';
     @ISA     = qw(Exporter);
     %EXPORT_TAGS = (
         phases => [ qw(NEW_MOON FIRST_QUARTER FULL_MOON LAST_QUARTER) ]
@@ -344,7 +344,15 @@ Lunar phases are even slower than new moons. It would be nice to fix it...
 =head1 AUTHOR
 
 Copyright (c) 2004-2007 Daisuke Maki E<lt>daisuke@endeworks.jpE<gt>
-All rights reserved.
+
+=head1 LICENSE
+
+Algorithm by Edward M. Reingold and Nachum Dershowitz
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+    
+See http://www.perl.com/perl/misc/Artistic.html
 
 =head1 REFERENCES
 
